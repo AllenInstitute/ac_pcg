@@ -7,7 +7,10 @@ dependencies = [
     "navis",
     "tensorstore",
     "kimimaro",
-    "rtree"
+    "rtree",
+    "protobuf==4.24.3",
+    "zstandard",
+    "cloud-files",
 ]
 
 [build-system]
@@ -19,6 +22,9 @@ py-modules = [
     "acpreprocessing",
 ]
 
+# [tool.uv]
+# prerelease="allow"
+
 # some downgrades from pixi's expectations
 [tool.pixi.system-requirements]
 linux = "5.0.0"
@@ -29,7 +35,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64"]
 
 [tool.pixi.pypi-dependencies]
-pychunkedgraph = { git = "https://github.com/CAVEconnectome/PyChunkedGraph.git"}
+# pychunkedgraph = { git = "https://github.com/CAVEconnectome/PyChunkedGraph.git"}
 # acpreprocessing = { path = ".", editable = true }
 
 # conda-enabled features
@@ -37,6 +43,8 @@ pychunkedgraph = { git = "https://github.com/CAVEconnectome/PyChunkedGraph.git"}
 numpy = "*"
 tensorstore = "*"
 rtree = "*"
+# protobuf = "*"
+zstandard = "*"
 
 # version-specific python features
 [tool.pixi.feature.py310.dependencies]
