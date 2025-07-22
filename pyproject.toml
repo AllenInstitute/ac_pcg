@@ -54,10 +54,11 @@ python = "3.11.*"
 
 
 [tool.pixi.feature.conda-lab.dependencies]
+greenlet = "*"
 jupyterlab = "*"
 
-[tool.pixi.feature.scalene.dependencies]
-scalene = "*"
+# [tool.pixi.feature.scalene.dependencies]
+# scalene = "*"
 
 [tool.pixi.environments]
 py310 = ["py310"]
@@ -66,3 +67,6 @@ py310-conda = ["py310", "pixi-base"]
 py311-conda = ["py311", "pixi-base"]
 py311-conda-lab = ["py311", "pixi-base", "conda-lab"]
 
+
+[tool.pixi.feature.conda-lab.tasks]
+jlab = "jupyter lab"
