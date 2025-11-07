@@ -6,6 +6,10 @@ import numpy
 uint64 = numpy.uint64
 
 
+def get_n_segid_bits(n_bits_for_layer_id=8, spatial_bit_count=8):
+    return uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
+
+
 def encode_label(layer, x, y, z, segid, n_bits_for_layer_id=8, spatial_bit_count=8):
     """
     Create a graphene label from the specified values.
@@ -32,7 +36,8 @@ def encode_label(layer, x, y, z, segid, n_bits_for_layer_id=8, spatial_bit_count
         % (layer, spatial_bit_count, x, y, z, 2 ** spatial_bit_count)
       )
 
-    segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
+    segid_bits = get_n_segid_bits(n_bits_for_layer_id, spatial_bit_count)
+    # segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
 
     if segid >= 2 ** segid_bits:
       raise ValueError(
@@ -56,7 +61,8 @@ def decode_layer_id(label, n_bits_for_layer_id=8):
 def decode_segid(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     label = uint64(label)
     level = decode_layer_id(label)
-    segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
+    segid_bits = get_n_segid_bits(n_bits_for_layer_id, spatial_bit_count)
+    # segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
 
     mask = uint64(2 ** segid_bits) - uint64(1)
     
@@ -69,7 +75,8 @@ def decode_chunk_position(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     spatial_bit_count = uint64(spatial_bit_count)
     label = label & uint64(0x00ffffffffffffff)
     masks = spatial_bit_masks(level)
-    segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
+    segid_bits = get_n_segid_bits(n_bits_for_layer_id, spatial_bit_count)
+    # segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
 
     x = (label & masks[0]) >> uint64(segid_bits + 2 * spatial_bit_count)
     y = (label & masks[1]) >> uint64(segid_bits + 1 * spatial_bit_count)
@@ -79,7 +86,8 @@ def decode_chunk_position(label, n_bits_for_layer_id=8, spatial_bit_count=8):
 
 def spatial_bit_masks(level, n_bits_for_layer_id=8, spatial_bit_count=8):
     mask = uint64(2 ** spatial_bit_count) - uint64(1)
-    segid_bits = 64 - n_bits_for_layer_id - 3 * spatial_bit_count
+    segid_bits = get_n_segid_bits(n_bits_for_layer_id, spatial_bit_count)
+    # segid_bits = 64 - n_bits_for_layer_id - 3 * spatial_bit_count
 
     return [
       mask << uint64(segid_bits + 2 * spatial_bit_count),
@@ -94,11 +102,32 @@ def decode_label(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     return (level, x, y, z, segid)
 
 
+def label_chunk(labeler, chunk):
+    layer_offset = numpy.uint64(64 - labeler.n_bits_for_layer_id)
+    x_offset = numpy.uint64(layer_offset - labeler.spatial_bit_count)
+    y_offset = numpy.uint64(x_offset - labeler.spatial_bit_count)
+    z_offset = numpy.uint64(y_offset - labeler.spatial_bit_count)
+
+    layer = numpy.uint64(labeler.level)
+    x, y, z = numpy.uint64(chunk)
+
+    segid_bits = labeler.segid_bits
+
+    return numpy.uint64(
+      layer << layer_offset | x << x_offset | y << y_offset | z << z_offset
+    ) >> segid_bits
+
+
 @dataclasses.dataclass
 class ChunkLabeler:
     level: int = 1
     n_bits_for_layer_id: int = 8
     spatial_bit_count: int = 8
+
+    @property
+    def segid_bits(self):
+        return get_n_segid_bits(self.n_bits_for_layer_id, self.spatial_bit_count)
+        
 
     def encode_chunk_seg(self, chunk_vec, seg_id):
         return encode_label(
@@ -106,7 +135,7 @@ class ChunkLabeler:
             n_bits_for_layer_id=self.n_bits_for_layer_id,
             spatial_bit_count=self.spatial_bit_count
         )
-        
+
     def decode_label(self, label):
         return decode_label(
             label,
