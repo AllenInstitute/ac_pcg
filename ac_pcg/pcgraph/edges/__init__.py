@@ -30,8 +30,8 @@ class Edges:
         areas: Optional[np.ndarray] = None,
         fake_edges=False,
     ):
-        self.node_ids1 = np.array(node_ids1, dtype=basetypes.NODE_ID, copy=False)
-        self.node_ids2 = np.array(node_ids2, dtype=basetypes.NODE_ID, copy=False)
+        self.node_ids1 = np.asarray(node_ids1, dtype=basetypes.NODE_ID)
+        self.node_ids2 = np.asarray(node_ids2, dtype=basetypes.NODE_ID)
         assert self.node_ids1.size == self.node_ids2.size
 
         self._as_pairs = None
