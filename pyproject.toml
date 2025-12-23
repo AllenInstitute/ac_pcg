@@ -11,6 +11,8 @@ dependencies = [
     "protobuf==4.24.3",
     "zstandard",
     "cloud-files",
+    "cloud-volume",
+    "crackle-codec"
 ]
 
 [build-system]
@@ -56,8 +58,8 @@ python = "3.11.*"
 [tool.pixi.feature.conda-lab.dependencies]
 jupyterlab = "*"
 
-[tool.pixi.feature.scalene.dependencies]
-scalene = "*"
+# [tool.pixi.feature.scalene.dependencies]
+# scalene = "*"
 
 [tool.pixi.environments]
 py310 = ["py310"]
@@ -65,4 +67,3 @@ py311 = ["py311"]
 py310-conda = ["py310", "pixi-base"]
 py311-conda = ["py311", "pixi-base"]
 py311-conda-lab = ["py311", "pixi-base", "conda-lab"]
-
