@@ -12,7 +12,9 @@ dependencies = [
     "zstandard",
     "cloud-files",
     "cloud-volume",
-    "crackle-codec"
+    "crackle-codec",
+    "imageio",
+    "tifffile"
 ]
 
 [build-system]
@@ -20,8 +22,8 @@ requires = ["setuptools>=64", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-py-modules = [
-    "acpreprocessing",
+packages = [
+    "ac_pcg",
 ]
 
 # [tool.uv]
