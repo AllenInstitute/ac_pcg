@@ -27,30 +27,31 @@ def encode_label(layer, x, y, z, segid, n_bits_for_layer_id=8, spatial_bit_count
     z_offset = uint64(y_offset - spatial_bit_count)
 
     if not (
-      x < 2 ** spatial_bit_count and y < 2 ** spatial_bit_count and z < 2 ** spatial_bit_count
+        x < 2 ** spatial_bit_count and y < 2 ** spatial_bit_count and z < 2 ** spatial_bit_count
     ):
-      raise ValueError(
-        "Chunk coordinate is out of range for "
-        "this graph on layer %d with %d bits/dim. "
-        "[%d, %d, %d]; max = %d."
-        % (layer, spatial_bit_count, x, y, z, 2 ** spatial_bit_count)
-      )
+        raise ValueError(
+            "Chunk coordinate is out of range for "
+            "this graph on layer %d with %d bits/dim. "
+            "[%d, %d, %d]; max = %d."
+            % (layer, spatial_bit_count, x, y, z, 2 ** spatial_bit_count)
+        )
 
     segid_bits = get_n_segid_bits(n_bits_for_layer_id, spatial_bit_count)
     # segid_bits = uint64(64 - n_bits_for_layer_id - 3 * spatial_bit_count)
 
     if segid >= 2 ** segid_bits:
-      raise ValueError(
-        "segid {} provided is out of range. It must be less than {}".format(
-          segid, 2 ** segid_bits
-      ))
+        raise ValueError(
+            "segid {} provided is out of range. It must be less than {}".format(
+                segid, 2 ** segid_bits
+            )
+        )
 
     layer = uint64(layer)
     x, y, z = uint64(x), uint64(y), uint64(z)
     segid = uint64(segid)
 
     return uint64(
-      layer << layer_offset | x << x_offset | y << y_offset | z << z_offset | segid
+        layer << layer_offset | x << x_offset | y << y_offset | z << z_offset | segid
     )
 
 
@@ -68,6 +69,7 @@ def decode_segid(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     
     return label & mask
 
+
 def decode_chunk_position(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     """Returns the chunk position as a tuple (X,Y,Z)"""
     label = uint64(label)
@@ -82,7 +84,8 @@ def decode_chunk_position(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     y = (label & masks[1]) >> uint64(segid_bits + 1 * spatial_bit_count)
     z = (label & masks[2]) >> uint64(segid_bits + 0 * spatial_bit_count)
 
-    return (x,y,z)
+    return (x, y, z)
+
 
 def spatial_bit_masks(level, n_bits_for_layer_id=8, spatial_bit_count=8):
     mask = uint64(2 ** spatial_bit_count) - uint64(1)
@@ -90,14 +93,16 @@ def spatial_bit_masks(level, n_bits_for_layer_id=8, spatial_bit_count=8):
     # segid_bits = 64 - n_bits_for_layer_id - 3 * spatial_bit_count
 
     return [
-      mask << uint64(segid_bits + 2 * spatial_bit_count),
-      mask << uint64(segid_bits + 1 * spatial_bit_count),
-      mask << uint64(segid_bits + 0 * spatial_bit_count)
+        mask << uint64(segid_bits + 2 * spatial_bit_count),
+        mask << uint64(segid_bits + 1 * spatial_bit_count),
+        mask << uint64(segid_bits + 0 * spatial_bit_count)
     ]
+
 
 def decode_label(label, n_bits_for_layer_id=8, spatial_bit_count=8):
     level = decode_layer_id(label, n_bits_for_layer_id=8)
-    x,y,z = decode_chunk_position(label, n_bits_for_layer_id=8, spatial_bit_count=8)
+    x, y, z = decode_chunk_position(
+        label, n_bits_for_layer_id=8, spatial_bit_count=8)
     segid = decode_segid(label, n_bits_for_layer_id=8, spatial_bit_count=8)
     return (level, x, y, z, segid)
 
@@ -114,7 +119,7 @@ def label_chunk(labeler, chunk):
     segid_bits = labeler.segid_bits
 
     return numpy.uint64(
-      layer << layer_offset | x << x_offset | y << y_offset | z << z_offset
+        layer << layer_offset | x << x_offset | y << y_offset | z << z_offset
     ) >> segid_bits
 
 
@@ -126,8 +131,8 @@ class ChunkLabeler:
 
     @property
     def segid_bits(self):
-        return get_n_segid_bits(self.n_bits_for_layer_id, self.spatial_bit_count)
-        
+        return get_n_segid_bits(
+            self.n_bits_for_layer_id, self.spatial_bit_count)
 
     def encode_chunk_seg(self, chunk_vec, seg_id):
         return encode_label(

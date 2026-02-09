@@ -15,7 +15,7 @@ def label_chunk(labeler, chunk):
     segid_bits = labeler.segid_bits
 
     return numpy.uint64(
-      layer << layer_offset | x << x_offset | y << y_offset | z << z_offset
+        layer << layer_offset | x << x_offset | y << y_offset | z << z_offset
     ) >> segid_bits
 
 
@@ -24,7 +24,7 @@ def chunk_edges_from_skeleton(skel, query_chunk, labeler):
     reduced_seg_edges = numpy.unique(
         numpy.sort(
             seg_edges[
-            (seg_edges[:, 0] != seg_edges[:, 1])
+                (seg_edges[:, 0] != seg_edges[:, 1])
             ], axis=1
         ),
         axis=0)
