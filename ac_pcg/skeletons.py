@@ -1,10 +1,14 @@
+import dataclasses
+
 import cloudvolume
+import fastremap
 import numpy
 
 # similar to skeleton.crop, except it returns skeleton object
 #   and indices of vertices into original skeleton
 Bbox = cloudvolume.Bbox
 np = numpy
+
 
 def crop_skel(skel, bbox, return_indices=False, remove_disconnected_vertices=True):
     skeleton = skel.clone()
@@ -17,7 +21,7 @@ def crop_skel(skel, bbox, return_indices=False, remove_disconnected_vertices=Tru
             return skeleton
 
     nodes_valid_mask = np.array(
-      [ bbox.contains(vtx) for vtx in skeleton.vertices ], dtype=bool
+        [ bbox.contains(vtx) for vtx in skeleton.vertices ], dtype=bool
     )
     nodes_valid_idx = np.where(nodes_valid_mask)[0]
 
@@ -49,3 +53,16 @@ def bboxed_skel(skel, bb):
 
     if new_skel.vertices.size:
         return new_skel, indices
+
+
+@dataclasses.dataclass
+class VtxIdxLoc:
+    vertices: numpy.ndarray
+    indices: numpy.ndarray
+    locations: numpy.ndarray
+
+
+def skeleton_unique_vtxs_idxs_locs(skel):
+    vtxs, idxs = fastremap.unique(skel.segments, return_index=True)
+    locs = skel.vertices[idxs]
+    return VtxIdxLoc(vtxs, idxs, locs)
