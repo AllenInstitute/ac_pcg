@@ -45,17 +45,32 @@ def chunk_idx_to_bbox(chunk_idx, chunk_size, chunked_box_shape):
 def get_bbox_chunks(bbox, chunk_size, offset=None):
     if offset is not None:
         raise NotImplementedError
-    (chunk_min, chunk_max), (remainder_min, remainder_max) = numpy.divmod(
-        numpy.array([bbox.minpt, bbox.maxpt]), chunk_size)
+
+    chunk_size = numpy.asarray(chunk_size, dtype=numpy.int64)
+    minpt = numpy.asarray(bbox.minpt, dtype=numpy.int64)
+    maxpt = numpy.asarray(bbox.maxpt, dtype=numpy.int64)
+    
+    # Empty bbox guard
+    if numpy.any(maxpt <= minpt):
+        return numpy.empty((0, 3), dtype=numpy.int64)
+
+    # (chunk_min, chunk_max), (remainder_min, remainder_max) = numpy.divmod(
+    #     numpy.array([bbox.minpt, bbox.maxpt]), chunk_size)
+
+    chunk_min = minpt // chunk_size
+    chunk_max = (maxpt - 1) // chunk_size  # <-- key change (exclusive max)
+
+    imin, jmin, kmin = chunk_min
+    imax, jmax, kmax = chunk_max
     # chunk_max += remainder_max.astype(bool)
 
     # TODO could be more clever about dims
     imin, jmin, kmin = chunk_min
     imax, jmax, kmax = chunk_max
     chunks = numpy.mgrid[
-        imin:imax + 1:1,
-        jmin:jmax + 1:1,
-        kmin:kmax + 1:1
+        imin:imax + 1,  # :1,
+        jmin:jmax + 1,  # :1,
+        kmin:kmax + 1,  # :1
     ].reshape(3, -1).T
 
     return chunks
