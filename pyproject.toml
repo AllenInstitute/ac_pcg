@@ -1,5 +1,14 @@
 [project]
 name = "acpcg"
+description = "PyChunkedGraph processing for axonal connectomics skeleton and voxel segmentation data"
+readme = "README.md"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Russel Torres"}
+]
+maintainers = [
+  {name = "Russel Torres"}
+]
 requires-python = ">3.8,<3.12"
 dynamic = ["version"] 
 dependencies = [
